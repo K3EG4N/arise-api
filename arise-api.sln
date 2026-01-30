@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "arise-api", "arise-api.csproj", "{83CD162F-6E07-7CC7-61C9-9859480FEA15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83CD162F-6E07-7CC7-61C9-9859480FEA15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83CD162F-6E07-7CC7-61C9-9859480FEA15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83CD162F-6E07-7CC7-61C9-9859480FEA15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83CD162F-6E07-7CC7-61C9-9859480FEA15}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A7E36A7-2844-4A3C-A00F-DF9991411853}
+	EndGlobalSection
+EndGlobal
