@@ -1,4 +1,6 @@
+using arise_api.helpers;
 using arise_api.Entities;
+using arise_api.generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace arise_api.provider
@@ -12,6 +14,25 @@ namespace arise_api.provider
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().ToTable("users", schema: "usr");
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker.Entries<BaseEntity>();
+
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.CreatedAt = DateTimeHelper.GetDateTimeNow();
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTimeHelper.GetDateTimeNow();
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

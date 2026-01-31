@@ -1,6 +1,8 @@
+using arise_api.generic;
+
 namespace arise_api.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
         public Guid UserId { get; set; }
 
