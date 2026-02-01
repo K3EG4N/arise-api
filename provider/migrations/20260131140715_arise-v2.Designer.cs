@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using arise_api.provider;
 
@@ -11,9 +12,11 @@ using arise_api.provider;
 namespace arise_api.provider.migrations
 {
     [DbContext(typeof(AriseDbContext))]
-    partial class AriseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260131140715_arise-v2")]
+    partial class arisev2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -25,3 +25,16 @@ VALUES (N'20260130041550_arise-v1', N'10.0.2');
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+ALTER TABLE [usr].[users] ADD [CreatedAt] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
+
+ALTER TABLE [usr].[users] ADD [DeletedAt] datetime2 NULL;
+
+ALTER TABLE [usr].[users] ADD [UpdatedAt] datetime2 NULL;
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20260131140715_arise-v2', N'10.0.2');
+
+COMMIT;
+GO
+
