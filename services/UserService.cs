@@ -1,30 +1,30 @@
-using arise_api.generic;
 using arise_api.Entities;
-using arise_api.provider;
 using arise_api.dtos.Responses;
 using arise_api.dtos.Request;
 using arise_api.dtos.Generics;
 using arise_api.helpers;
 using System.Linq.Expressions;
+using arise_api.repositories;
 
 namespace arise_api.services
 {
-    public interface IUserService : IBaseRepository<User>
+    public interface IUserService
     {
         Task<List<UserListResponse>> GetAllUsersAsync();
         Task<UserByIdResponse?> FindUserByIdAsync(Guid id);
+        Task<User?> FindUserByEmailAsync(string email);
         Task<BaseResponse> CreateUserAsync(CreateUserRequest request);
         Task<BaseResponse> UpdateUserAsync(Guid? id, UpdateUserRequest request);
         Task<BaseResponse> DeleteUserAsync(Guid? id);
     }
 
-    public class UserService(AriseDbContext context) : BaseRepository<User>(context), IUserService
+    public class UserService(IUserRepository repository) : IUserService
     {
+        private readonly IUserRepository _repository = repository;
+
         public async Task<List<UserListResponse>> GetAllUsersAsync()
         {
-            Expression<Func<User, bool>> predicate = u => u.DeletedAt == null;
-
-            var users = await GetAllAsync(predicate);
+            var users = await _repository.GetAllUsersAsync();
 
             return [.. users.Select(u => new UserListResponse
             {
@@ -36,10 +36,7 @@ namespace arise_api.services
 
         public async Task<UserByIdResponse?> FindUserByIdAsync(Guid id)
         {
-            Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
-                && u.UserId == id;
-
-            var user = await GetFirstAsync(predicate);
+            var user = await _repository.FindUserByIdAsync(id);
 
             if (user == null)
                 return null;
@@ -50,6 +47,11 @@ namespace arise_api.services
                 Username = user.Username,
                 Email = user.Email
             };
+        }
+
+        public async Task<User?> FindUserByEmailAsync(string email)
+        {
+            return await _repository.FindUserByEmailAsync(email);
         }
 
         public async Task<BaseResponse> CreateUserAsync(CreateUserRequest request)
@@ -93,7 +95,7 @@ namespace arise_api.services
                 Password = passwordHash
             };
 
-            await AddAsync(user);
+            await _repository.AddAsync(user);
 
             return new BaseResponse
             {
@@ -125,7 +127,7 @@ namespace arise_api.services
             Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
                 && u.UserId == id;
 
-            var user = await GetFirstAsync(predicate);
+            var user = await _repository.GetFirstAsync(predicate);
 
             if (user == null)
             {
@@ -152,7 +154,7 @@ namespace arise_api.services
                 user.Password = passwordHash;
             }
 
-            await UpdateAsync(user);
+            await _repository.UpdateAsync(user);
 
             return new BaseResponse
             {
@@ -175,7 +177,7 @@ namespace arise_api.services
             Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
                 && u.UserId == id;
 
-            var user = await GetFirstAsync(predicate);
+            var user = await _repository.GetFirstAsync(predicate);
 
             if (user == null)
             {
@@ -188,7 +190,7 @@ namespace arise_api.services
 
             user.DeletedAt = DateTimeHelper.GetDateTimeNow();
 
-            await UpdateAsync(user);
+            await _repository.UpdateAsync(user);
 
             return new BaseResponse
             {
@@ -202,7 +204,7 @@ namespace arise_api.services
             Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
                 && (u.Email == email || u.Username == email);
 
-            var user = await GetFirstAsync(predicate);
+            var user = await _repository.GetFirstAsync(predicate);
 
             return user != null;
         }

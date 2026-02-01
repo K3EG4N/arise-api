@@ -6,7 +6,10 @@ namespace arise_api.generic
 {
     public interface IBaseRepository<T> where T : class
     {
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity);
     }
 
     public class BaseRepository<T>(AriseDbContext context) : IBaseRepository<T> where T : class
