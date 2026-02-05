@@ -17,6 +17,10 @@ namespace arise_api.entities
 
         public DateTime HireDate { get; set; }
 
+        public DateTime BirthDate { get; set; }
+
+        public string? Photo { get; set; }
+
         public Guid UserId { get; set; }
 
         public User User { get; set; } = new();

@@ -38,3 +38,31 @@ VALUES (N'20260131140715_arise-v2', N'10.0.2');
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF SCHEMA_ID(N'emp') IS NULL EXEC(N'CREATE SCHEMA [emp];');
+
+CREATE TABLE [emp].[employees] (
+    [EmployeeId] uniqueidentifier NOT NULL,
+    [FirstName] nvarchar(max) NOT NULL,
+    [MiddleName] nvarchar(max) NULL,
+    [PaternalLastName] nvarchar(max) NOT NULL,
+    [MaternalLastName] nvarchar(max) NULL,
+    [HireDate] datetime2 NOT NULL,
+    [BirthDate] datetime2 NOT NULL,
+    [Photo] nvarchar(max) NULL,
+    [UserId] uniqueidentifier NOT NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    [UpdatedAt] datetime2 NULL,
+    [DeletedAt] datetime2 NULL,
+    CONSTRAINT [PK_employees] PRIMARY KEY ([EmployeeId]),
+    CONSTRAINT [FK_employees_users_UserId] FOREIGN KEY ([UserId]) REFERENCES [usr].[users] ([UserId]) ON DELETE CASCADE
+);
+
+CREATE INDEX [IX_employees_UserId] ON [emp].[employees] ([UserId]);
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20260205034833_arise-v3', N'10.0.2');
+
+COMMIT;
+GO
+
