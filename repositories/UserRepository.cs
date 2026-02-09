@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using arise_api.Entities;
 using arise_api.generic;
 using arise_api.provider;

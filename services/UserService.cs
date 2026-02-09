@@ -3,7 +3,6 @@ using arise_api.dtos.Responses;
 using arise_api.dtos.Request;
 using arise_api.dtos.Generics;
 using arise_api.helpers;
-using System.Linq.Expressions;
 using arise_api.repositories;
 
 namespace arise_api.services
@@ -74,7 +73,7 @@ namespace arise_api.services
                 };
             }
 
-            bool userExists = await UserExistsAsync(request.Email);
+            bool userExists = await _repository.ExistsAsync(u => u.DeletedAt == null && (u.Email == request.Email || u.Username == request.Email));
 
             if (userExists)
             {
@@ -124,10 +123,7 @@ namespace arise_api.services
                 };
             }
 
-            Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
-                && u.UserId == id;
-
-            var user = await _repository.GetFirstAsync(predicate);
+            var user = await _repository.FindUserByIdAsync(id.Value);
 
             if (user == null)
             {
@@ -174,10 +170,7 @@ namespace arise_api.services
                 };
             }
 
-            Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
-                && u.UserId == id;
-
-            var user = await _repository.GetFirstAsync(predicate);
+            var user = await _repository.FindUserByIdAsync(id.Value);
 
             if (user == null)
             {
@@ -199,14 +192,5 @@ namespace arise_api.services
             };
         }
 
-        private async Task<bool> UserExistsAsync(string email)
-        {
-            Expression<Func<User, bool>> predicate = u => u.DeletedAt == null
-                && (u.Email == email || u.Username == email);
-
-            var user = await _repository.GetFirstAsync(predicate);
-
-            return user != null;
-        }
     }
 }
