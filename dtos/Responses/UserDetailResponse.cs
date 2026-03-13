@@ -5,5 +5,6 @@ namespace arise_api.dtos.Responses
         public Guid UserId { get; set; }
         public string? Username { get; set; }
         public string Email { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; }
     }
 }

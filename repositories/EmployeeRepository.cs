@@ -14,7 +14,7 @@ namespace arise_api.repositories
     {
         public async Task<Employee?> FindEmployeeByUserIdAsync(Guid UserId)
         {
-            return await _context.Employees.Include(u => u.User).FirstOrDefaultAsync(e => e.UserId == UserId);
+            return await _context.Employees.Include(u => u.User).FirstOrDefaultAsync(e => e.UserId == UserId && e.DeletedAt == null);
         }
     }
 }

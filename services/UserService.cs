@@ -44,7 +44,8 @@ namespace arise_api.services
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Email = user.Email
+                Email = user.Email,
+                CreatedAt = user.CreatedAt
             };
         }
 
