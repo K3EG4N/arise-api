@@ -47,7 +47,7 @@ namespace arise_api.services
                     Email = e.User.Email,
                     Phote = e.Photo,
                     Code = e.Code,
-                    Phone = e.Phone,
+                    Phone = e.Phone ?? string.Empty,
                     BirthDate = DateTimeHelper.FormatDateToString(e.BirthDate),
                     HireDate = DateTimeHelper.FormatDateToString(e.HireDate),
                     Status = e.DeletedAt != null ? "Inactive" : "Active"
