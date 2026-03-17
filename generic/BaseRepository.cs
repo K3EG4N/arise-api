@@ -9,6 +9,7 @@ namespace arise_api.generic
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
     }
@@ -25,6 +26,11 @@ namespace arise_api.generic
         public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().CountAsync(predicate);
         }
 
         public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
