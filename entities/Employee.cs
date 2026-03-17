@@ -21,8 +21,26 @@ namespace arise_api.entities
 
         public string? Photo { get; set; }
 
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public User User { get; set; } = new();
+
+        public string Dni { get; set; } = string.Empty;
+
+        public Gender Gender { get; set; } = new();
+
+        public string Code { get; set; } = string.Empty;
+
+        public string? Phone { get; set; }
+
+        public Guid StatusId { get; set; } = new();
+        public EmployeeStatus Status { get; set; } = new();
+    }
+
+    public enum Gender
+    {
+        Male,
+        Female,
+        Other
     }
 }

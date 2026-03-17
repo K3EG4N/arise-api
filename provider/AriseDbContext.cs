@@ -9,6 +9,7 @@ namespace arise_api.provider
     public class AriseDbContext(DbContextOptions<AriseDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<EmployeeStatus> EmployeeStatuses { get; set; }
         public DbSet<Employee> Employees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -16,6 +17,7 @@ namespace arise_api.provider
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().ToTable("users", schema: "usr");
+            modelBuilder.Entity<EmployeeStatus>().ToTable("employee_statuses", schema: "emp");
             modelBuilder.Entity<Employee>().ToTable("employees", schema: "emp");
         }
 

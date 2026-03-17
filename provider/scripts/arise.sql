@@ -66,3 +66,44 @@ VALUES (N'20260205034833_arise-v3', N'10.0.2');
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+ALTER TABLE [emp].[employees] DROP CONSTRAINT [FK_employees_users_UserId];
+
+DECLARE @var nvarchar(max);
+SELECT @var = QUOTENAME([d].[name])
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[emp].[employees]') AND [c].[name] = N'UserId');
+IF @var IS NOT NULL EXEC(N'ALTER TABLE [emp].[employees] DROP CONSTRAINT ' + @var + ';');
+ALTER TABLE [emp].[employees] ALTER COLUMN [UserId] uniqueidentifier NULL;
+
+ALTER TABLE [emp].[employees] ADD [Code] nvarchar(max) NOT NULL DEFAULT N'';
+
+ALTER TABLE [emp].[employees] ADD [Dni] nvarchar(max) NOT NULL DEFAULT N'';
+
+ALTER TABLE [emp].[employees] ADD [Gender] int NOT NULL DEFAULT 0;
+
+ALTER TABLE [emp].[employees] ADD [Phone] nvarchar(max) NULL;
+
+ALTER TABLE [emp].[employees] ADD [StatusId] uniqueidentifier NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
+
+CREATE TABLE [emp].[employee_statuses] (
+    [EmployeeStatusId] uniqueidentifier NOT NULL,
+    [Code] nvarchar(max) NOT NULL,
+    [Name] nvarchar(max) NOT NULL,
+    [Color] nvarchar(max) NOT NULL,
+    CONSTRAINT [PK_employee_statuses] PRIMARY KEY ([EmployeeStatusId])
+);
+
+CREATE INDEX [IX_employees_StatusId] ON [emp].[employees] ([StatusId]);
+
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_employee_statuses_StatusId] FOREIGN KEY ([StatusId]) REFERENCES [emp].[employee_statuses] ([EmployeeStatusId]) ON DELETE CASCADE;
+
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_users_UserId] FOREIGN KEY ([UserId]) REFERENCES [usr].[users] ([UserId]);
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20260317032115_arise-v4', N'10.0.2');
+
+COMMIT;
+GO
+
