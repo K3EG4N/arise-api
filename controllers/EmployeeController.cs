@@ -1,4 +1,5 @@
 using arise_api.dtos.Responses;
+using arise_api.generic;
 using arise_api.services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,13 @@ namespace arise_api.controllers
         {
             var users = await _service.GetEmployeeByUserId(userId);
             return Ok(users);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<DataGroup<ListEmployeeResponse>>> GetAllEmployees()
+        {
+            var employees = await _service.GetAllEmployeesAsync();
+            return Ok(employees);
         }
     }
 }

@@ -8,5 +8,10 @@ namespace arise_api.helpers
             var peruTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
             return TimeZoneInfo.ConvertTimeFromUtc(utcNow, peruTimeZone);
         }
+
+        public static string FormatDateToString(DateTime date)
+        {
+            return date.ToString("yyyy-MM-dd");
+        }
     }
 }
