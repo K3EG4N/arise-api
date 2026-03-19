@@ -87,22 +87,31 @@ ALTER TABLE [emp].[employees] ADD [Phone] nvarchar(max) NULL;
 
 ALTER TABLE [emp].[employees] ADD [StatusId] uniqueidentifier NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000';
 
-CREATE TABLE [emp].[employee_statuses] (
+CREATE TABLE [emp].[employeeStatuses] (
     [EmployeeStatusId] uniqueidentifier NOT NULL,
     [Code] nvarchar(max) NOT NULL,
     [Name] nvarchar(max) NOT NULL,
     [Color] nvarchar(max) NOT NULL,
-    CONSTRAINT [PK_employee_statuses] PRIMARY KEY ([EmployeeStatusId])
+    CONSTRAINT [PK_employeeStatuses] PRIMARY KEY ([EmployeeStatusId])
 );
+
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'EmployeeStatusId', N'Code', N'Color', N'Name') AND [object_id] = OBJECT_ID(N'[emp].[employeeStatuses]'))
+    SET IDENTITY_INSERT [emp].[employeeStatuses] ON;
+INSERT INTO [emp].[employeeStatuses] ([EmployeeStatusId], [Code], [Color], [Name])
+VALUES ('7d2e9f1a-3c4b-4e8f-b2a5-6d1c0e7f8a9b', N'INA', N'#DC3545', N'Inactive'),
+('a5b8c3e1-6f2d-4a9e-c7b4-1e3d5f2a8c6b', N'PEN', N'#FFC107', N'Pending'),
+('f3a1c2d4-8b5e-4f7a-9c6d-2e1b0a3f4e5d', N'ACT', N'#28A745', N'Active');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'EmployeeStatusId', N'Code', N'Color', N'Name') AND [object_id] = OBJECT_ID(N'[emp].[employeeStatuses]'))
+    SET IDENTITY_INSERT [emp].[employeeStatuses] OFF;
 
 CREATE INDEX [IX_employees_StatusId] ON [emp].[employees] ([StatusId]);
 
-ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_employee_statuses_StatusId] FOREIGN KEY ([StatusId]) REFERENCES [emp].[employee_statuses] ([EmployeeStatusId]) ON DELETE CASCADE;
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_employeeStatuses_StatusId] FOREIGN KEY ([StatusId]) REFERENCES [emp].[employeeStatuses] ([EmployeeStatusId]) ON DELETE CASCADE;
 
 ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_users_UserId] FOREIGN KEY ([UserId]) REFERENCES [usr].[users] ([UserId]);
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
-VALUES (N'20260317032115_arise-v4', N'10.0.2');
+VALUES (N'20260317232406_arise-v4', N'10.0.2');
 
 COMMIT;
 GO

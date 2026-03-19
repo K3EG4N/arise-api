@@ -3,12 +3,13 @@ using arise_api.entities;
 using arise_api.generic;
 using arise_api.helpers;
 using arise_api.repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace arise_api.services
 {
     public interface IEmployeeService
     {
-        Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync();
+        Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync(BaseFilter filter);
         Task<EmployeeByUserId?> GetEmployeeByUserId(Guid UserId);
     }
 
@@ -32,29 +33,39 @@ namespace arise_api.services
             };
         }
 
-        public async Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync()
+        public async Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync(BaseFilter filter)
         {
-            var employees = await _repository.GetAllEmployeesAsync();
+            var employees = await _repository.GetAllAsync(new()
+            {
+                OrderBy = q => q.OrderBy(e => e.Code),
+                Include = q => q.Include(e => e.User).Include(x => x.Status),
+                Limit = filter.Limit,
+                Offset = filter.Offset
+            });
+
             var total = await _repository.CountAsync(x => true);
 
             Thread.Sleep(2000);
 
             return new DataGroup<ListEmployeeResponse>
             {
-                Data = [.. employees.OrderBy(x => x.FirstName).Select(e => new ListEmployeeResponse
+                Data = [.. employees.Select(e => new ListEmployeeResponse
                 {
                     Name = BuildFullName(e),
                     Email = e.User.Email,
-                    Phote = e.Photo,
+                    Photo = e.Photo,
+                    Dni = e.Dni,
                     Code = e.Code,
+                    Gender = e.Gender == Gender.Male ? "Male" : "Female",
                     Phone = e.Phone ?? string.Empty,
                     BirthDate = DateTimeHelper.FormatDateToString(e.BirthDate),
                     HireDate = DateTimeHelper.FormatDateToString(e.HireDate),
-                    Status = e.DeletedAt != null ? "Inactive" : "Active"
+                    Status = e.Status.Name,
+                    StatusCode = e.Status.Code
                 })],
-                CurrentPage = PaginationHelper.GetCurrentPage(0, 50),
+                CurrentPage = PaginationHelper.GetCurrentPage(filter.Offset, filter.Limit),
                 TotalItems = total,
-                TotalPages = PaginationHelper.GetTotalPages(total, 50)
+                TotalPages = PaginationHelper.GetTotalPages(total, filter.Limit)
             };
         }
 

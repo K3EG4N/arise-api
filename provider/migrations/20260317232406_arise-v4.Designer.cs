@@ -12,7 +12,7 @@ using arise_api.provider;
 namespace arise_api.provider.migrations
 {
     [DbContext(typeof(AriseDbContext))]
-    [Migration("20260317032115_arise-v4")]
+    [Migration("20260317232406_arise-v4")]
     partial class arisev4
     {
         /// <inheritdoc />
@@ -143,7 +143,30 @@ namespace arise_api.provider.migrations
 
                     b.HasKey("EmployeeStatusId");
 
-                    b.ToTable("employee_statuses", "emp");
+                    b.ToTable("employeeStatuses", "emp");
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeStatusId = new Guid("f3a1c2d4-8b5e-4f7a-9c6d-2e1b0a3f4e5d"),
+                            Code = "ACT",
+                            Color = "#28A745",
+                            Name = "Active"
+                        },
+                        new
+                        {
+                            EmployeeStatusId = new Guid("7d2e9f1a-3c4b-4e8f-b2a5-6d1c0e7f8a9b"),
+                            Code = "INA",
+                            Color = "#DC3545",
+                            Name = "Inactive"
+                        },
+                        new
+                        {
+                            EmployeeStatusId = new Guid("a5b8c3e1-6f2d-4a9e-c7b4-1e3d5f2a8c6b"),
+                            Code = "PEN",
+                            Color = "#FFC107",
+                            Name = "Pending"
+                        });
                 });
 
             modelBuilder.Entity("arise_api.entities.Employee", b =>

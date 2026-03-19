@@ -3,6 +3,7 @@ using arise_api.Entities;
 using arise_api.generic;
 using Microsoft.EntityFrameworkCore;
 using arise_api.entities;
+using arise_api.provider.configuration;
 
 namespace arise_api.provider
 {
@@ -17,8 +18,10 @@ namespace arise_api.provider
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>().ToTable("users", schema: "usr");
-            modelBuilder.Entity<EmployeeStatus>().ToTable("employee_statuses", schema: "emp");
+            modelBuilder.Entity<EmployeeStatus>().ToTable("employeeStatuses", schema: "emp");
             modelBuilder.Entity<Employee>().ToTable("employees", schema: "emp");
+
+            modelBuilder.ApplyConfiguration(new EmployeeStatusConfiguration());
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -6,7 +6,7 @@ namespace arise_api.generic
 {
     public interface IBaseRepository<T> where T : class
     {
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
+        Task<List<T>> GetAllAsync(QueryOptions<T> options);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
@@ -18,9 +18,26 @@ namespace arise_api.generic
     {
         public readonly AriseDbContext _context = context;
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate)
+        public async Task<List<T>> GetAllAsync(QueryOptions<T> options)
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync();
+            IQueryable<T> query = _context.Set<T>();
+
+            if (options.Include != null)
+                query = options.Include(query);
+
+            if (options.Predicate != null)
+                query = query.Where(options.Predicate);
+
+            if (options.OrderBy != null)
+                query = options.OrderBy(query);
+
+            if (options.Offset > 0)
+                query = query.Skip(options.Offset);
+
+            if (options.Limit > 0)
+                query = query.Take(options.Limit);
+
+            return await query.ToListAsync();
         }
 
         public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> predicate)

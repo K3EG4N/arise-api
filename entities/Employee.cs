@@ -34,6 +34,7 @@ namespace arise_api.entities
         public string? Phone { get; set; }
 
         public Guid StatusId { get; set; } = new();
+
         public EmployeeStatus Status { get; set; } = new();
     }
 

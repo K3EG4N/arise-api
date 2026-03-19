@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace arise_api.provider.migrations
 {
     /// <inheritdoc />
@@ -65,7 +67,7 @@ namespace arise_api.provider.migrations
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.CreateTable(
-                name: "employee_statuses",
+                name: "employeeStatuses",
                 schema: "emp",
                 columns: table => new
                 {
@@ -76,7 +78,18 @@ namespace arise_api.provider.migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_employee_statuses", x => x.EmployeeStatusId);
+                    table.PrimaryKey("PK_employeeStatuses", x => x.EmployeeStatusId);
+                });
+
+            migrationBuilder.InsertData(
+                schema: "emp",
+                table: "employeeStatuses",
+                columns: new[] { "EmployeeStatusId", "Code", "Color", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("7d2e9f1a-3c4b-4e8f-b2a5-6d1c0e7f8a9b"), "INA", "#DC3545", "Inactive" },
+                    { new Guid("a5b8c3e1-6f2d-4a9e-c7b4-1e3d5f2a8c6b"), "PEN", "#FFC107", "Pending" },
+                    { new Guid("f3a1c2d4-8b5e-4f7a-9c6d-2e1b0a3f4e5d"), "ACT", "#28A745", "Active" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -86,12 +99,12 @@ namespace arise_api.provider.migrations
                 column: "StatusId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_employees_employee_statuses_StatusId",
+                name: "FK_employees_employeeStatuses_StatusId",
                 schema: "emp",
                 table: "employees",
                 column: "StatusId",
                 principalSchema: "emp",
-                principalTable: "employee_statuses",
+                principalTable: "employeeStatuses",
                 principalColumn: "EmployeeStatusId",
                 onDelete: ReferentialAction.Cascade);
 
@@ -109,7 +122,7 @@ namespace arise_api.provider.migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_employees_employee_statuses_StatusId",
+                name: "FK_employees_employeeStatuses_StatusId",
                 schema: "emp",
                 table: "employees");
 
@@ -119,7 +132,7 @@ namespace arise_api.provider.migrations
                 table: "employees");
 
             migrationBuilder.DropTable(
-                name: "employee_statuses",
+                name: "employeeStatuses",
                 schema: "emp");
 
             migrationBuilder.DropIndex(

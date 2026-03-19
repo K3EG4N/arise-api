@@ -18,9 +18,9 @@ namespace arise_api.controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<DataGroup<ListEmployeeResponse>>> GetAllEmployees()
+        public async Task<ActionResult<DataGroup<ListEmployeeResponse>>> GetAllEmployees([FromQuery] BaseFilter filter)
         {
-            var employees = await _service.GetAllEmployeesAsync();
+            var employees = await _service.GetAllEmployeesAsync(filter);
             return Ok(employees);
         }
     }
