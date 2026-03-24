@@ -35,17 +35,28 @@ namespace arise_api.services
 
         public async Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync(BaseFilter filter)
         {
+            var query = filter.Query?.Trim()?.ToLower();
+
+            var words = (query ?? "").ToLower()
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .ToList();
+
             var employees = await _repository.GetAllAsync(new()
             {
+                Predicate = q => !string.IsNullOrEmpty(query) ?
+                                 q.Dni.Contains(query) ||
+                                 words.All(word =>
+                                     q.FirstName.ToLower().Contains(word) ||
+                                     (q.MiddleName != null && q.MiddleName.ToLower().Contains(word)) ||
+                                     q.PaternalLastName.ToLower().Contains(word) ||
+                                     (q.MaternalLastName != null && q.MaternalLastName.ToLower().Contains(word))
+                                 ) : true,
                 OrderBy = q => q.OrderBy(e => e.Code),
                 Include = q => q.Include(e => e.User).Include(x => x.Status),
                 Limit = filter.Limit,
                 Offset = filter.Offset
             });
-
             var total = await _repository.CountAsync(x => true);
-
-            Thread.Sleep(2000);
 
             return new DataGroup<ListEmployeeResponse>
             {
