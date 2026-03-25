@@ -23,7 +23,7 @@ namespace arise_api.entities
 
         public Guid? UserId { get; set; }
 
-        public User User { get; set; } = new();
+        public User? User { get; set; }
 
         public string Dni { get; set; } = string.Empty;
 
@@ -35,7 +35,7 @@ namespace arise_api.entities
 
         public Guid StatusId { get; set; } = new();
 
-        public EmployeeStatus Status { get; set; } = new();
+        public EmployeeStatus Status { get; set; } = null!;
     }
 
     public enum Gender

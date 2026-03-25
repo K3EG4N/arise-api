@@ -22,6 +22,7 @@ namespace arise_api.provider
             modelBuilder.Entity<Employee>().ToTable("employees", schema: "emp");
 
             modelBuilder.ApplyConfiguration(new EmployeeStatusConfiguration());
+            modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

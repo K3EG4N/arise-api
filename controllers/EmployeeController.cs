@@ -1,3 +1,5 @@
+using arise_api.dtos.Generics;
+using arise_api.dtos.Request;
 using arise_api.dtos.Responses;
 using arise_api.generic;
 using arise_api.services;
@@ -22,6 +24,13 @@ namespace arise_api.controllers
         {
             var employees = await _service.GetAllEmployeesAsync(filter);
             return Ok(employees);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<BaseResponse>> CreateEmployee([FromBody] CreateEmployeeRequest request)
+        {
+            var result = await _service.CreateEmployeeAsync(request);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

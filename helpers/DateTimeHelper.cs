@@ -13,5 +13,15 @@ namespace arise_api.helpers
         {
             return date.ToString("yyyy-MM-dd");
         }
+
+        public static DateTime ParseStringToDate(string dateString)
+        {
+            if (DateTime.TryParseExact(dateString, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime date))
+            {
+                return date;
+            }
+
+            return DateTime.MinValue;
+        }
     }
 }

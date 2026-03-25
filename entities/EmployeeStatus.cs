@@ -10,4 +10,11 @@ namespace arise_api.entities
 
         public string Color { get; set; } = string.Empty;
     }
+
+    public static class EMPLOYEE_STATUS_CODE
+    {
+        public const string ACTIVE = "01",
+                            PENDING = "02",
+                            INACTIVE = "03";
+    }
 }
