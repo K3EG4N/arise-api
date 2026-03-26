@@ -1,4 +1,3 @@
-using System.Text.Json;
 using arise_api.dtos.Generics;
 using arise_api.dtos.Request;
 using arise_api.dtos.Responses;
@@ -17,10 +16,11 @@ namespace arise_api.services
         Task<BaseResponse> CreateEmployeeAsync(CreateEmployeeRequest request);
     }
 
-    public class EmployeeService(IEmployeeRepository repository, IEmployeeStatusRepository status) : IEmployeeService
+    public class EmployeeService(IEmployeeRepository repository, IEmployeeStatusRepository status, IDepartmentRepository department) : IEmployeeService
     {
         private readonly IEmployeeStatusRepository _status = status;
         private readonly IEmployeeRepository _repository = repository;
+        private readonly IDepartmentRepository _department = department;
 
         public async Task<EmployeeByUserId?> GetEmployeeByUserId(Guid UserId)
         {
@@ -48,7 +48,7 @@ namespace arise_api.services
 
             var employees = await _repository.GetAllAsync(new()
             {
-                Predicate = q => string.IsNullOrEmpty(query) || q.Dni.Contains(query) ||
+                Predicate = q => string.IsNullOrEmpty(query) || q.Dni.Contains(query) || q.Code.Contains(query) ||
                                  words.All(word =>
                                      q.FirstName.ToLower().Contains(word) ||
                                      (q.MiddleName != null && q.MiddleName.ToLower().Contains(word)) ||
@@ -56,12 +56,12 @@ namespace arise_api.services
                                      (q.MaternalLastName != null && q.MaternalLastName.ToLower().Contains(word))
                                  ),
                 OrderBy = q => q.OrderBy(e => e.Code),
-                Include = q => q.Include(e => e.User).Include(x => x.Status),
+                Include = q => q.Include(e => e.User).Include(x => x.Status).Include(x => x.Department),
                 Limit = filter.Limit,
                 Offset = filter.Offset
             });
 
-            var total = await _repository.CountAsync(x => string.IsNullOrEmpty(query) || x.Dni.Contains(query) ||
+            var total = await _repository.CountAsync(x => string.IsNullOrEmpty(query) || x.Dni.Contains(query) || x.Code.Contains(query) ||
                                  words.All(word =>
                                      x.FirstName.ToLower().Contains(word) ||
                                      (x.MiddleName != null && x.MiddleName.ToLower().Contains(word)) ||
@@ -80,6 +80,7 @@ namespace arise_api.services
                     Code = e.Code,
                     Gender = e.Gender == Gender.Male ? "Male" : "Female",
                     Phone = e.Phone ?? string.Empty,
+                    Department = e.Department != null ? e.Department.Name : string.Empty,
                     BirthDate = DateTimeHelper.FormatDateToString(e.BirthDate),
                     HireDate = DateTimeHelper.FormatDateToString(e.HireDate),
                     Status = e.Status.Name,
@@ -93,6 +94,16 @@ namespace arise_api.services
 
         public async Task<BaseResponse> CreateEmployeeAsync(CreateEmployeeRequest request)
         {
+            if (request == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Request body is required",
+                    StatusCode = 400
+                };
+            }
+
             if (string.IsNullOrEmpty(request.Name))
             {
                 return new BaseResponse
@@ -189,6 +200,18 @@ namespace arise_api.services
                 };
             }
 
+            var department = await _department.GetFirstAsync(d => d.DepartmentId == request.DepartmentId);
+
+            if (department == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Department not found",
+                    StatusCode = 404
+                };
+            }
+
             Employee employee = new()
             {
                 Dni = request.Dni,
@@ -196,7 +219,8 @@ namespace arise_api.services
                 Code = BuildCode(request.Dni),
                 Phone = request.Phone,
                 HireDate = DateTimeHelper.GetDateTimeNow(),
-                StatusId = activeStatus.EmployeeStatusId
+                StatusId = activeStatus.EmployeeStatusId,
+                DepartmentId = department.DepartmentId
             };
 
             var (firstName, middleName) = SplitFullName(request.Name);

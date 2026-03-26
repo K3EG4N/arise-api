@@ -27,15 +27,19 @@ namespace arise_api.entities
 
         public string Dni { get; set; } = string.Empty;
 
-        public Gender Gender { get; set; } = new();
+        public Gender Gender { get; set; } = Gender.Male;
 
         public string Code { get; set; } = string.Empty;
 
         public string? Phone { get; set; }
 
-        public Guid StatusId { get; set; } = new();
+        public Guid StatusId { get; set; }
 
         public EmployeeStatus Status { get; set; } = null!;
+
+        public Guid? DepartmentId { get; set; }
+
+        public Department Department { get; set; } = null!;
     }
 
     public enum Gender

@@ -12,6 +12,7 @@ namespace arise_api.provider
         public DbSet<User> Users { get; set; }
         public DbSet<EmployeeStatus> EmployeeStatuses { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,6 +21,7 @@ namespace arise_api.provider
             modelBuilder.Entity<User>().ToTable("users", schema: "usr");
             modelBuilder.Entity<EmployeeStatus>().ToTable("employeeStatuses", schema: "emp");
             modelBuilder.Entity<Employee>().ToTable("employees", schema: "emp");
+            modelBuilder.Entity<Department>().ToTable("departments", schema: "emp");
 
             modelBuilder.ApplyConfiguration(new EmployeeStatusConfiguration());
             modelBuilder.ApplyConfiguration(new EmployeeConfiguration());

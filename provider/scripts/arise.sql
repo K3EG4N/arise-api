@@ -116,3 +116,35 @@ VALUES (N'20260317232406_arise-v4', N'10.0.2');
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+ALTER TABLE [emp].[employees] DROP CONSTRAINT [FK_employees_employeeStatuses_StatusId];
+
+ALTER TABLE [emp].[employees] DROP CONSTRAINT [FK_employees_users_UserId];
+
+ALTER TABLE [emp].[employees] ADD [DepartmentId] uniqueidentifier NULL;
+
+CREATE TABLE [emp].[departments] (
+    [DepartmentId] uniqueidentifier NOT NULL,
+    [Code] nvarchar(max) NOT NULL,
+    [Name] nvarchar(max) NOT NULL,
+    [Description] nvarchar(max) NULL,
+    [CreatedAt] datetime2 NOT NULL,
+    [UpdatedAt] datetime2 NULL,
+    [DeletedAt] datetime2 NULL,
+    CONSTRAINT [PK_departments] PRIMARY KEY ([DepartmentId])
+);
+
+CREATE INDEX [IX_employees_DepartmentId] ON [emp].[employees] ([DepartmentId]);
+
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_departments_DepartmentId] FOREIGN KEY ([DepartmentId]) REFERENCES [emp].[departments] ([DepartmentId]);
+
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_employeeStatuses_StatusId] FOREIGN KEY ([StatusId]) REFERENCES [emp].[employeeStatuses] ([EmployeeStatusId]) ON DELETE NO ACTION;
+
+ALTER TABLE [emp].[employees] ADD CONSTRAINT [FK_employees_users_UserId] FOREIGN KEY ([UserId]) REFERENCES [usr].[users] ([UserId]) ON DELETE NO ACTION;
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20260325225431_arise-v5', N'10.0.2');
+
+COMMIT;
+GO
+
