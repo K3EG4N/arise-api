@@ -1,3 +1,4 @@
+using arise_api.dtos.Generics;
 using arise_api.entities;
 
 namespace arise_api.dtos.Request
@@ -12,5 +13,6 @@ namespace arise_api.dtos.Request
         public string? BirthDate { get; set; }
         public string? Address { get; set; }
         public Guid? DepartmentId { get; set; }
+        public FileUpload? File { get; set; }
     }
 }

@@ -16,11 +16,12 @@ namespace arise_api.services
         Task<BaseResponse> CreateEmployeeAsync(CreateEmployeeRequest request);
     }
 
-    public class EmployeeService(IEmployeeRepository repository, IEmployeeStatusRepository status, IDepartmentRepository department) : IEmployeeService
+    public class EmployeeService(IEmployeeRepository repository, IEmployeeStatusRepository status, IDepartmentRepository department, IBlobStorageService storage) : IEmployeeService
     {
         private readonly IEmployeeStatusRepository _status = status;
         private readonly IEmployeeRepository _repository = repository;
         private readonly IDepartmentRepository _department = department;
+        private readonly IBlobStorageService _storage = storage;
 
         public async Task<EmployeeByUserId?> GetEmployeeByUserId(Guid UserId)
         {
@@ -214,6 +215,7 @@ namespace arise_api.services
 
             Employee employee = new()
             {
+                EmployeeId = Guid.NewGuid(),
                 Dni = request.Dni,
                 BirthDate = birthDate,
                 Code = BuildCode(request.Dni),
@@ -222,6 +224,12 @@ namespace arise_api.services
                 StatusId = activeStatus.EmployeeStatusId,
                 DepartmentId = department.DepartmentId
             };
+
+            if (request.File != null && request.File.FileData != null && !string.IsNullOrEmpty(request.File.Extension))
+            {
+                var url = await _storage.UploadAsync(request.File, employee.EmployeeId);
+                employee.Photo = url;
+            }
 
             var (firstName, middleName) = SplitFullName(request.Name);
             employee.FirstName = firstName;

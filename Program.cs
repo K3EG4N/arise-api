@@ -1,7 +1,9 @@
 using arise_api.generic;
+using arise_api.helpers;
 using arise_api.provider;
 using arise_api.repositories;
 using arise_api.services;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -20,6 +22,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(allowIntegerValues: true));
     });
 
@@ -30,7 +33,12 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AriseDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddSingleton(new BlobServiceClient(
+    new Uri(builder.Configuration["AzureStorage:SasToken"]!)
+));
+
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
