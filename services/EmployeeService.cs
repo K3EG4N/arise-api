@@ -229,6 +229,8 @@ namespace arise_api.services
             {
                 var url = await _storage.UploadAsync(request.File, employee.EmployeeId);
                 employee.Photo = url;
+
+                Console.WriteLine(url);
             }
 
             var (firstName, middleName) = SplitFullName(request.Name);

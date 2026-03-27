@@ -25,7 +25,10 @@ namespace arise_api.services
             using var stream = new MemoryStream(file.FileData!);
             await blobClient.UploadAsync(stream, overwrite: true);
 
-            return blobClient.Uri.OriginalString;
+            // var cleanUri = new UriBuilder(blobClient.Uri) { Query = string.Empty }.Uri.ToString();
+            // return cleanUri;
+
+            return blobClient.Uri.ToString();
         }
     }
 }
