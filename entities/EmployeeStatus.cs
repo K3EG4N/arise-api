@@ -14,7 +14,6 @@ namespace arise_api.entities
     public static class EMPLOYEE_STATUS_CODE
     {
         public const string ACTIVE = "01",
-                            PENDING = "02",
-                            INACTIVE = "03";
+                            INACTIVE = "02";
     }
 }
