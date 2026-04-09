@@ -1,12 +1,17 @@
+using arise_api.entities;
+
 namespace arise_api.dtos.Responses
 {
     public class ListEmployeeResponse
     {
+        public Guid EmployeeId { get; set; }
         public string Name { get; set; } = null!;
+        public string FullName { get; set; } = null!;
+        public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string? Photo { get; set; }
         public string Code { get; set; } = null!;
-        public string Gender { get; set; } = null!;
+        public Gender Gender { get; set; }
         public string Dni { get; set; } = null!;
         public string? Department { get; set; }
         public string Phone { get; set; } = null!;
@@ -14,5 +19,7 @@ namespace arise_api.dtos.Responses
         public string BirthDate { get; set; } = null!;
         public string Status { get; set; } = null!;
         public string StatusCode { get; set; } = null!;
+        public Guid? DepartmentId { get; set; }
+        public int GenderId { get; set; }
     }
 }

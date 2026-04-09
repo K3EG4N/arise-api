@@ -32,5 +32,19 @@ namespace arise_api.controllers
             var result = await _service.CreateEmployeeAsync(request);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("bulk")]
+        public async Task<ActionResult<BaseResponse>> CreateBulkEmployees([FromBody] FileUpload request)
+        {
+            var result = await _service.CreateBulkEmployeesAsync(request);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPut("{employeeId}")]
+        public async Task<ActionResult<BaseResponse>> UpdateEmployee(Guid employeeId, [FromBody] UpdateEmployeeRequest request)
+        {
+            var result = await _service.UpdateEmployeeAsync(employeeId, request);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

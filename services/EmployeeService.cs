@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using arise_api.dtos.Generics;
 using arise_api.dtos.Request;
 using arise_api.dtos.Responses;
@@ -14,6 +15,8 @@ namespace arise_api.services
         Task<DataGroup<ListEmployeeResponse>> GetAllEmployeesAsync(BaseFilter filter);
         Task<EmployeeByUserId?> GetEmployeeByUserId(Guid UserId);
         Task<BaseResponse> CreateEmployeeAsync(CreateEmployeeRequest request);
+        Task<BaseResponse> CreateBulkEmployeesAsync(FileUpload request);
+        Task<BaseResponse> UpdateEmployeeAsync(Guid employeeId, UpdateEmployeeRequest request);
     }
 
     public class EmployeeService(IEmployeeRepository repository, IEmployeeStatusRepository status, IDepartmentRepository department, IBlobStorageService storage) : IEmployeeService
@@ -74,13 +77,18 @@ namespace arise_api.services
             {
                 Data = [.. employees.Select(e => new ListEmployeeResponse
                 {
-                    Name = BuildFullName(e),
+                    EmployeeId = e.EmployeeId,
+                    Name = (e.FirstName + " " + e.MiddleName).Trim(),
+                    LastName = (e.PaternalLastName + " " + e.MaternalLastName).Trim(),
+                    FullName = BuildFullName(e),
                     Email = e.User?.Email ?? "",
                     Photo = e.Photo,
                     Dni = e.Dni,
                     Code = e.Code,
-                    Gender = e.Gender == Gender.Male ? "Male" : "Female",
+                    Gender = e.Gender,
+                    GenderId = e.Gender == Gender.Male ? 1 : e.Gender == Gender.Female ? 2 : 3,
                     Phone = e.Phone ?? string.Empty,
+                    DepartmentId = e.DepartmentId,
                     Department = e.Department != null ? e.Department.Name : string.Empty,
                     BirthDate = DateTimeHelper.FormatDateToString(e.BirthDate),
                     HireDate = DateTimeHelper.FormatDateToString(e.HireDate),
@@ -245,6 +253,222 @@ namespace arise_api.services
             {
                 Success = true,
                 Message = "Employee created successfully"
+            };
+        }
+
+        public async Task<BaseResponse> CreateBulkEmployeesAsync(FileUpload request)
+        {
+            if (request.Extension == "csv")
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Unsupported file format. Please upload a CSV or XLSX file.",
+                    StatusCode = 400
+                };
+            }
+            else if (request.Extension == "xlsx")
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Unsupported file format. Please upload a CSV or XLSX file.",
+                    StatusCode = 400
+                };
+            }
+            else
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Unsupported file format. Please upload a CSV or XLSX file.",
+                    StatusCode = 400
+                };
+            }
+        }
+
+        public async Task<BaseResponse> UpdateEmployeeAsync(Guid employeeId, UpdateEmployeeRequest request)
+        {
+            if (employeeId == Guid.Empty)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "EmployeeId is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.Name == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Name is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.LastName == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Last name is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.DepartmentId == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "DepartmentId is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.Dni == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Dni is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.Gender == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Gender is required",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.Dni.Length < 8)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Dni must be at least 8 characters long",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.Phone != null && request.Phone.Length != 9)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Phone number must be exactly 9 characters long",
+                    StatusCode = 400
+                };
+            }
+
+            if (request.BirthDate == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Birth date is required",
+                    StatusCode = 400
+                };
+            }
+
+            var employee = await _repository.GetFirstAsync(e => e.EmployeeId == employeeId);
+
+            if (employee == null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Employee not found",
+                    StatusCode = 404
+                };
+            }
+
+            if (employee.DeletedAt != null)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Cannot update a inactive employee",
+                    StatusCode = 400
+                };
+            }
+
+            var (firstName, middleName) = SplitFullName(request.Name);
+            employee.FirstName = firstName;
+            employee.MiddleName = middleName;
+
+            var (paternalLastName, maternalLastName) = SplitFullName(request.LastName);
+            employee.PaternalLastName = paternalLastName;
+            employee.MaternalLastName = maternalLastName;
+
+            var birthDate = DateTimeHelper.ParseStringToDate(request.BirthDate);
+
+            if (birthDate == DateTime.MinValue)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Invalid birth date format. Expected format: yyyy-MM-dd",
+                    StatusCode = 400
+                };
+            }
+
+            var existingEmployee = await _repository.ExistsAsync(e => e.Dni == request.Dni && e.EmployeeId != employeeId);
+
+            if (existingEmployee)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "An employee with the same DNI already exists",
+                    StatusCode = 400
+                };
+            }
+
+            var existingDepartment = await _department.ExistsAsync(d => d.DepartmentId == request.DepartmentId);
+
+            if (!existingDepartment)
+            {
+                return new BaseResponse
+                {
+                    Success = false,
+                    Message = "Department not found",
+                    StatusCode = 404
+                };
+            }
+
+            employee.Dni = request.Dni;
+            employee.Code = BuildCode(request.Dni);
+            employee.BirthDate = birthDate;
+            employee.Phone = request.Phone;
+            employee.UpdatedAt = DateTimeHelper.GetDateTimeNow();
+            employee.DepartmentId = request.DepartmentId;
+            employee.Gender = request.Gender.Value;
+
+            if (request.File == null)
+            {
+                employee.Photo = null;
+            }
+            else if (request.File != null && request.File.FileData != null && !string.IsNullOrEmpty(request.File.Extension))
+            {
+                var url = await _storage.UploadAsync(request.File, employee.EmployeeId);
+                employee.Photo = url;
+            }
+
+            await _repository.UpdateAsync(employee);
+
+            return new BaseResponse
+            {
+                Success = true,
+                Message = "Employee updated successfully"
             };
         }
 
