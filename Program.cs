@@ -1,5 +1,4 @@
 using arise_api.generic;
-using arise_api.helpers;
 using arise_api.provider;
 using arise_api.repositories;
 using arise_api.services;
@@ -13,7 +12,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost5173", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5174")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
